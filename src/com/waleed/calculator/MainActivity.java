@@ -1,39 +1,60 @@
 package com.waleed.calculator;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.MotionEventCompat;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnDoubleTapListener;
+import android.view.GestureDetector.OnGestureListener;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
+import android.view.Window;
 import android.widget.EditText;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnGestureListener, OnDoubleTapListener {
 	
 	private EditText numbers;
 	private EditText history;
 	private String lastCalculation;
-	//private Pattern ops = Pattern.compile("+-/*");
+	
+	private static final String DEBUG_TAG = "Gestures";
+    private GestureDetectorCompat mDetector; 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        // Hide the Title Bar
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_main); 
+        
+        // Instantiate the gesture detector with the
+        // application context and an implementation of
+        // GestureDetector.OnGestureListener
+        mDetector = new GestureDetectorCompat(this,this);
+        // Set the gesture detector as the double tap
+        // listener.
+        mDetector.setOnDoubleTapListener(this);
         
         numbers = (EditText) findViewById(R.id.numberField);
-        history = (EditText) findViewById(R.id.historyField);
+        history = (EditText) findViewById(R.id.historyField);   
     }
 
 
-    @Override
+   /* @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
-    }
+    }*/
     
     public void onClick(View view)
     {
@@ -128,7 +149,7 @@ public class MainActivity extends Activity {
     	//System.out.println(seq.length());
     	if(!seq.equals(""))
     	{
-    		System.out.println("TEMP: "+temp);
+    		//System.out.println("TEMP: "+temp);
 	    	int pos = seq.length()-1;
 	    	//while(pos > -1 && !checkChar(seq.charAt(pos)))
 	    	while(pos > -1)
@@ -145,7 +166,7 @@ public class MainActivity extends Activity {
 	    		}
 	    	}
 	    	
-	    	System.out.println("TEMP: "+temp);
+	    	//System.out.println("TEMP: "+temp);
 	    	
 	    	if(temp.contains("."))
 	    	{
@@ -183,17 +204,23 @@ public class MainActivity extends Activity {
     
     public void calculate(String expression)
     {
+    	System.out.println("INPUT: "+expression);
+    	
     	int length = expression.length();
-    	System.out.println("STRING: "+expression);
-    	System.out.println("LENGTH: "+length);
     	Stack<String> stack = new Stack<String>();
     	Queue<String> queue = new LinkedList<String>();
     	
-    	if(checkChar(expression.charAt(length-1)))
+    	while(length > 0 && checkChar(expression.charAt(length-1)))
     	{
     		expression = expression.substring(0, length-1);
     		length = length-1;
     	}
+    	
+    	/*if(checkChar(expression.charAt(length-1)))
+    	{
+    		expression = expression.substring(0, length-1);
+    		length = length-1;
+    	}*/
     	
     	lastCalculation = expression;
     	
@@ -201,7 +228,7 @@ public class MainActivity extends Activity {
 		String number = "";
 		
 		//SCENARIO: first number is negative. DEAL.
-		if(expression.charAt(0)=='-')
+		if(expression.length()!=0 && expression.charAt(0)=='-')
 		{
 			temp = expression.charAt(0);
 			number = number + temp;
@@ -214,7 +241,10 @@ public class MainActivity extends Activity {
 				number = number + temp;
 				expression = expression.substring(1, length);
 				length = length - 1;
-				temp = expression.charAt(0);
+				if(length>0)
+				{
+					temp = expression.charAt(0);
+				}
 			}
 		
 			queue.add(number);
@@ -248,6 +278,10 @@ public class MainActivity extends Activity {
     						while(stack.peek().equals(""+'*') || stack.peek().equals(""+'/'))
     						{
     							queue.add(stack.pop());
+    							if(stack.isEmpty())
+    							{
+    								break;
+    							}
     						}
     						stack.push(""+temp);
     					}
@@ -276,6 +310,7 @@ public class MainActivity extends Activity {
 				}
 				queue.add(number);
 			}
+			System.out.println("QUEUE: "+queue.toString());
 		}
 		
 		while(!stack.isEmpty())
@@ -324,18 +359,118 @@ public class MainActivity extends Activity {
 			}
 		}
 		
-    	numbers.setText(""+evaluation.pop());
-    	String newAnswer = ""+numbers.getText();
-    	String existingText = ""+history.getText();
-    	if(history.getText().length()==0)
-    	{
-    		history.setText(lastCalculation + " = "+ newAnswer);
-    	}
-    	else
-    	{
-    		history.setText(existingText + "\n" + lastCalculation + " = "+ newAnswer );
-        	history.setSelection(history.getText().length());
-    	}
+		if(!evaluation.isEmpty())
+		{
+			System.out.println(evaluation.peek());
+			if(Double.isInfinite(evaluation.peek()))
+			{
+				numbers.setText("");
+				String existingText = ""+history.getText();
+				if(history.getText().length()==0)
+		    	{
+		    		history.setText(lastCalculation + " = "+ evaluation.pop() + "\n");
+		    	}
+		    	else
+		    	{
+		    		history.setText(existingText + "\n" + lastCalculation + " = "+ evaluation.pop() + "\n");
+		        	history.setSelection(history.getText().length());
+		    	}
+			}
+			else
+			{
+		    	numbers.setText(""+evaluation.pop());
+		    	String newAnswer = ""+numbers.getText();
+		    	String existingText = ""+history.getText();
+		    	if(history.getText().length()==0)
+		    	{
+		    		history.setText(lastCalculation + " = "+ newAnswer + "\n");
+		    	}
+		    	else
+		    	{
+		    		history.setText(existingText + "\n" + lastCalculation + " = "+ newAnswer + "\n");
+		        	history.setSelection(history.getText().length());
+		    	}
+			}
+		}
     }
+
+    @Override 
+    public boolean onTouchEvent(MotionEvent event){ 
+        this.mDetector.onTouchEvent(event);
+        // Be sure to call the superclass implementation
+        return super.onTouchEvent(event);
+    }
+
+	@Override
+	public boolean onDoubleTap(MotionEvent e) {
+		// TODO Auto-generated method stub
+		System.out.println("double tap");
+		Log.d(DEBUG_TAG,"onDown: " + e.toString());
+		return true;
+	}
+
+
+	@Override
+	public boolean onDoubleTapEvent(MotionEvent e) {
+		// TODO Auto-generated method stub
+		Log.d(DEBUG_TAG,"onDown: " + e.toString());
+		return true;
+	}
+
+
+	@Override
+	public boolean onSingleTapConfirmed(MotionEvent e) {
+		// TODO Auto-generated method stub
+		Log.d(DEBUG_TAG,"onDown: " + e.toString());
+		return true;
+	}
+
+
+	@Override
+	public boolean onDown(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		Log.d(DEBUG_TAG,"onDown: " + arg0.toString());
+		return true;
+	}
+
+
+	@Override
+	public boolean onFling(MotionEvent arg0, MotionEvent arg1, float arg2,
+			float arg3) {
+		// TODO Auto-generated method stub
+		Log.d(DEBUG_TAG,"onDown: " + arg0.toString());
+		return true;
+	}
+
+
+	@Override
+	public void onLongPress(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		Log.d(DEBUG_TAG,"onDown: " + arg0.toString());
+	}
+
+
+	@Override
+	public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2,
+			float arg3) {
+		// TODO Auto-generated method stub
+		Log.d(DEBUG_TAG,"onDown: " + arg0.toString());
+		return true;
+	}
+
+
+	@Override
+	public void onShowPress(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		Log.d(DEBUG_TAG,"onDown: " + arg0.toString());
+	}
+
+
+	@Override
+	public boolean onSingleTapUp(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		Log.d(DEBUG_TAG,"onDown: " + arg0.toString());
+		return false;
+	}   
     
-}
+}   
