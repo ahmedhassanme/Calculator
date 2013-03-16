@@ -6,48 +6,48 @@ import java.util.Stack;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.MotionEventCompat;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.GestureDetector.OnDoubleTapListener;
-import android.view.GestureDetector.OnGestureListener;
-import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.EditText;
 
-public class MainActivity extends Activity implements OnGestureListener, OnDoubleTapListener {
+public class MainActivity extends Activity{
 	
 	private EditText numbers;
 	private EditText history;
 	private String lastCalculation;
-	
-	private static final String DEBUG_TAG = "Gestures";
-    private GestureDetectorCompat mDetector; 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
         // Hide the Title Bar
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_main); 
-        
-        // Instantiate the gesture detector with the
-        // application context and an implementation of
-        // GestureDetector.OnGestureListener
-        mDetector = new GestureDetectorCompat(this,this);
-        // Set the gesture detector as the double tap
-        // listener.
-        mDetector.setOnDoubleTapListener(this);
+        setContentView(R.layout.activity_main);
         
         numbers = (EditText) findViewById(R.id.numberField);
-        history = (EditText) findViewById(R.id.historyField);   
+        history = (EditText) findViewById(R.id.historyField); 
+        
+        registerForContextMenu(history);
     }
-
+    
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) 
+    {
+    	System.out.println("IN HERE");
+      if (v.getId()==R.id.historyField) 
+      {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+        menu.setHeaderTitle("title");
+        String[] menuItems = {"one", "two"};
+        for (int i = 0; i<menuItems.length; i++) {
+          menu.add(Menu.NONE, i, i, menuItems[i]);
+        }
+      }
+    }
 
    /* @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -392,85 +392,5 @@ public class MainActivity extends Activity implements OnGestureListener, OnDoubl
 		    	}
 			}
 		}
-    }
-
-    @Override 
-    public boolean onTouchEvent(MotionEvent event){ 
-        this.mDetector.onTouchEvent(event);
-        // Be sure to call the superclass implementation
-        return super.onTouchEvent(event);
-    }
-
-	@Override
-	public boolean onDoubleTap(MotionEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("double tap");
-		Log.d(DEBUG_TAG,"onDown: " + e.toString());
-		return true;
-	}
-
-
-	@Override
-	public boolean onDoubleTapEvent(MotionEvent e) {
-		// TODO Auto-generated method stub
-		Log.d(DEBUG_TAG,"onDown: " + e.toString());
-		return true;
-	}
-
-
-	@Override
-	public boolean onSingleTapConfirmed(MotionEvent e) {
-		// TODO Auto-generated method stub
-		Log.d(DEBUG_TAG,"onDown: " + e.toString());
-		return true;
-	}
-
-
-	@Override
-	public boolean onDown(MotionEvent arg0) {
-		// TODO Auto-generated method stub
-		Log.d(DEBUG_TAG,"onDown: " + arg0.toString());
-		return true;
-	}
-
-
-	@Override
-	public boolean onFling(MotionEvent arg0, MotionEvent arg1, float arg2,
-			float arg3) {
-		// TODO Auto-generated method stub
-		Log.d(DEBUG_TAG,"onDown: " + arg0.toString());
-		return true;
-	}
-
-
-	@Override
-	public void onLongPress(MotionEvent arg0) {
-		// TODO Auto-generated method stub
-		Log.d(DEBUG_TAG,"onDown: " + arg0.toString());
-	}
-
-
-	@Override
-	public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2,
-			float arg3) {
-		// TODO Auto-generated method stub
-		Log.d(DEBUG_TAG,"onDown: " + arg0.toString());
-		return true;
-	}
-
-
-	@Override
-	public void onShowPress(MotionEvent arg0) {
-		// TODO Auto-generated method stub
-		Log.d(DEBUG_TAG,"onDown: " + arg0.toString());
-	}
-
-
-	@Override
-	public boolean onSingleTapUp(MotionEvent arg0) {
-		// TODO Auto-generated method stub
-		Log.d(DEBUG_TAG,"onDown: " + arg0.toString());
-		return false;
-	}   
-    
-}   
+    }	  
+}

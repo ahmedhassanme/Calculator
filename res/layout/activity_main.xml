@@ -18,7 +18,7 @@
         android:editable="false"
         android:focusableInTouchMode="false"
         android:scrollbars="vertical"
-        android:longClickable="false"
+        
         android:textColor="@color/textC" >
     </EditText>
 
@@ -219,5 +219,4 @@
             android:text="@string/button_clear"
             android:textColor="@color/textC" />
     </LinearLayout>
-
 </LinearLayout>
