@@ -5,22 +5,32 @@
     android:background="@color/backgroundC"
     android:orientation="vertical" >
 
-    <EditText
+<!--      <EditText
         android:id="@+id/historyField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="0.69"
+        android:editable="false"
         android:ems="10"
         android:focusable="false"
+        android:focusableInTouchMode="false"
         android:gravity="bottom"
         android:inputType="textMultiLine"
-        android:textIsSelectable="false"
-        android:editable="false"
-        android:focusableInTouchMode="false"
         android:scrollbars="vertical"
+        android:textColor="@color/textC"
+        android:textIsSelectable="false" >
         
-        android:textColor="@color/textC" >
-    </EditText>
+        	android:textSize="24dip"
+	android:padding="8dip"
+
+    </EditText>-->
+    
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:layout_weight="0.69"
+    />
 
     <EditText
         android:id="@+id/numberField"
@@ -219,4 +229,5 @@
             android:text="@string/button_clear"
             android:textColor="@color/textC" />
     </LinearLayout>
+
 </LinearLayout>

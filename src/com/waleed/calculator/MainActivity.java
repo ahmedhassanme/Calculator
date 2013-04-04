@@ -1,5 +1,6 @@
 package com.waleed.calculator;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
@@ -12,33 +13,70 @@ import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity{
 	
 	private EditText numbers;
 	private EditText history;
 	private String lastCalculation;
+	private ListView list;
+	private ArrayAdapter adapter;
+	private ArrayList<String> results;
+	
+	private OnItemClickListener itemListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        results = new ArrayList<String>();
         
         // Hide the Title Bar
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         
         numbers = (EditText) findViewById(R.id.numberField);
-        history = (EditText) findViewById(R.id.historyField); 
+      //history = (EditText) findViewById(R.id.historyField); 
+        history = new EditText(this);
         
-        registerForContextMenu(history);
+        //LIST CODE
+        list = (ListView) findViewById(R.id.listView);
+        adapter = new ArrayAdapter<String>(this, R.layout.listitem, results);
+        list.setAdapter(adapter); 
+        list.setStackFromBottom(true);
+        list.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        
+        /*itemListener = new OnItemClickListener()
+        {
+        	@Override
+            public void onItemClick(AdapterView<?> parent, View view, int position,
+                    long id) 
+        	{
+                
+                //String item = ((TextView)view).getText().toString();
+                
+                Toast.makeText(getBaseContext(), "ha", Toast.LENGTH_LONG).show();
+                
+                
+            }
+        
+        };
+        		
+        list.setOnItemClickListener(itemListener);*/
+        registerForContextMenu(list);
     }
+    
     
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) 
     {
     	System.out.println("IN HERE");
-      if (v.getId()==R.id.historyField) 
+      if (v.getId()==R.id.listView) 
       {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
         menu.setHeaderTitle("title");
@@ -375,6 +413,8 @@ public class MainActivity extends Activity{
 		    		history.setText(existingText + "\n" + lastCalculation + " = "+ evaluation.pop() + "\n");
 		        	history.setSelection(history.getText().length());
 		    	}
+				results.add(lastCalculation + " = " + "Infinity");
+		    	adapter.notifyDataSetChanged();
 			}
 			else
 			{
@@ -390,6 +430,9 @@ public class MainActivity extends Activity{
 		    		history.setText(existingText + "\n" + lastCalculation + " = "+ newAnswer + "\n");
 		        	history.setSelection(history.getText().length());
 		    	}
+		    	//LISTVIEW
+		    	results.add(lastCalculation + " = " + newAnswer);
+		    	adapter.notifyDataSetChanged();
 			}
 		}
     }	  
